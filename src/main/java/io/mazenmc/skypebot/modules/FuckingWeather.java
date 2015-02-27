@@ -30,25 +30,23 @@ public class FuckingWeather implements Module {
 	}
 
 	public static String getWeather(String location) throws JSONException, Exception {
+		if (location == null) {
+			throw new IllegalArgumentException("location cannot be null");
+		}
 		String call = (url + location).replace(' ', '+');
 		JSONObject json = new JSONObject(sendGet(call));
 
-		if (json.getInt("cod") != 200 || json == null) {
+		if (json == null || json.getInt("cod") != 200) {
 			return "I CAN'T GET THE FUCKING WEATHER!";
 		}
-		
-		
-	        if (temp <= 32) {
-                        return "ITS FUCKING FREEZING!";
-                } else if (temp >= 33 && temp <= 60) {
-                        return "ITS FUCKING COLD!";
-                } else if (temp >= 61 && temp <= 75) {
-                        return "ITS FUCKING NICE!";
-}
 
+		double temp = json.getJSONObject("main").getDouble("temp");
+		String city = json.getString("name");
+		if (city == null || city.isEmpty()) {
+			city = location;
+		}
 		double metric = temp - 32 / 1.8000;
-
-		return "THE FUCKING WEATHER IN " + location.toUpperCase() + " IS " + temp + "F | " + metric + "C";
+		return String.format("THE FUCKING WEATHER IN %s IS %.2fF | %.2fC!", city.toUpperCase(), temp, metric);
 	}
 
 	public static String sendGet(String url) throws Exception {
